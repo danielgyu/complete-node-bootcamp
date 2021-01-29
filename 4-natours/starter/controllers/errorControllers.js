@@ -40,6 +40,8 @@ const sendErrorProd = (err, res) => {
     }
 };
 
+const handleJWTError = (err) => new AppError('invalid token', 401);
+
 const globalErrorController = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -53,6 +55,7 @@ const globalErrorController = (err, req, res, next) => {
         sendErrorProd(err, res);
         if (error.name === 'ValidationError')
             error = handleValidationErrorDB(error);
+        if (error.name === 'JsonWebTokenError') handleJWTError(error);
     }
 };
 
