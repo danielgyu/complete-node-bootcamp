@@ -1,19 +1,23 @@
 const express = require('express');
-const fs = require('fs');
 
-const tourController = require('./../controllers/tourControllers.js');
+const tourController = require('../controllers/tourControllers.js');
 
 // router init
 const router = express.Router();
 
 // middleware
+/*
 router.param('id', tourController.checkID);
+*/
 
 // routers
+router.route('/').get(tourController.getAllTours).post(tourController.postTour);
+
 router
-    .route('/')
-    .get(tourController.getAllTours)
-    .post(tourController.checkBody, tourController.postTour);
+    .route('/top-5-cheapest')
+    .get(tourController.aliasTopTours, tourController.getAllTours);
+
+router.route('/tour-stats').get(tourController.getTourStats);
 
 router
     .route('/:id')

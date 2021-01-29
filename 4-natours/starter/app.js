@@ -1,15 +1,16 @@
-const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const AppError = require('./utils/appError');
+const globalErrorController = require('./controllers/errorControllers');
 
 // initiate app
 const app = express();
 
 // morgan middleware
-if (process.env === 'development') {
+if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
@@ -31,5 +32,12 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+// handle unknown routes
+app.all('*', (req, res, next) => {
+    next(new AppError('no page', 404));
+});
+
+app.use(globalErrorController);
 
 module.exports = app;

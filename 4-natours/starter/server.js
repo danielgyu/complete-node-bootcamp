@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const app = require('./app.js');
 
 // env var
 dotenv.config({ path: './.env' });
+
+// read in app after env
+const app = require('./app.js');
 
 // configure mongo db
 const DB = process.env.MONGO_DB.replace('<password>', process.env.MONGO_PW);
@@ -14,46 +16,25 @@ mongoose
         useFindAndModify: false,
     })
     .then(() => {
-        console.log(DB);
         console.log('DB connection successful');
     });
 
-// mongoose model
-/*
-const tourSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'REQUIRED'],
-        unique: true,
-    },
-    rating: {
-        type: Number,
-        default: 4.0,
-    },
-    price: {
-        type: Number,
-        required: [true, 'REQUIRED'],
-    },
-});
-const Tour = mongoose.model('Tour', tourSchema);
-
-const testCamper = new Tour({
-    name: 'The Park Camper',
-    price: 200,
-});
-
-testCamper
-    .save()
-    .then((doc) => {
-        console.log(doc);
-    })
-    .catch((err) => {
-        console.log(`ERROR: ${err}`);
-    });
-*/
-
 // bind server to port
 const port = process.env.PORT || 3100;
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`App running on port ${port}`);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.log(err.name, err.message);
+    server.close(() => {
+        process.exit(1);
+    });
+});
+
+process.on('uncaughtException', (err) => {
+    console.log(err.name, err.message);
+    server.close(() => {
+        process.exit(1);
+    });
 });
